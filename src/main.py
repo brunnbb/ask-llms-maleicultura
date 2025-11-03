@@ -19,9 +19,11 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 MODEL_CONTEXT = (
-    "Você é um agente agrícola especializado em pomares de maçã, com foco em ajudar produtores rurais."
-    "Responda de forma clara, concisa, curta e prática, em único parágrafo simples e resumido, sem markdown."
-    "Forneça recomendações baseadas em práticas agrícolas comprovadas e adaptadas às condições dadas."
+    """
+    Você é um agente agrícola especializado em pomares de maçã, com foco em ajudar produtores rurais.
+    Responda e forneça recomendações baseadas em práticas agrícolas comprovadas e adaptadas às condições dadas.
+    Responda de forma clara, concisa, curta e prática, em único parágrafo com poucas frases de maneira simples e resumido, sem markdown ou outras formatações.
+    """
 )
 
 # Initialize clients globally
@@ -35,12 +37,12 @@ async def ask_openai(model: str, question: str) -> str:
         resp = await openai_client.responses.create(
             model=model,
             input=question,
-            instructions=MODEL_CONTEXT,
+            instructions=MODEL_CONTEXT
         )
         return resp.output_text.strip()
     except Exception as e:
         logger.error(f"OpenAI error: {e}")
-        return f"OpenAI error: {e}" 
+        return " " 
 
 async def ask_deepseek(model: str, question: str) -> str:   
     try:
@@ -56,7 +58,7 @@ async def ask_deepseek(model: str, question: str) -> str:
         return resp.choices[0].message.content.strip()
     except Exception as e:
         logger.error(f"DeepSeek error: {e}")
-        return f"DeepSeek error: {e}" 
+        return " " 
 
 async def ask_gemini(model: str, question: str) -> str:
     try:
@@ -70,7 +72,7 @@ async def ask_gemini(model: str, question: str) -> str:
         return resp.text.strip()
     except Exception as e:
         logger.error(f"Gemini error: {e}")
-        return f"Gemini error: {e}" 
+        return " " 
 
 # Retry logic in case of network errors or rate limits
 async def retry(fn, *args, retries=3, delay=2, **kwargs):
@@ -108,7 +110,7 @@ async def process_csv(filename: str):
         df[name] = df[name].fillna("").astype(str)
 
     # Semaphore to limit concurrency
-    sem = asyncio.Semaphore(5)
+    sem = asyncio.Semaphore(2)
 
     # Process each row
     async def process_row(i, question):
