@@ -3,6 +3,7 @@ import asyncio
 import time
 import random
 import logging
+from typing import Callable
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -19,11 +20,12 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 MODEL_CONTEXT = (
-    """
-    Você é um agente agrícola especializado em pomares de maçã, com foco em ajudar produtores rurais.
-    Responda e forneça recomendações baseadas em práticas agrícolas comprovadas e adaptadas às condições dadas.
-    Responda de forma clara, concisa, curta e prática, em único parágrafo com poucas frases de maneira simples e resumido, sem markdown ou outras formatações.
-    """
+"""
+Você é um consultor agrícola especializado em produção e manejo de maçãs, com foco em ajudar produtores rurais, considerando o contexto produtivo da região sul do Brasil.
+Seu papel é orientar produtores sobre plantio, irrigação, poda, controle de pragas, colheita, comercialização e qualquer outro aspecto da produção de maçãs.
+Responda e forneça recomendações baseadas em práticas agrícolas comprovadas e adaptadas às condições dadas.
+Responda de forma clara, concisa, curta e prática, em único parágrafo com poucas frases de maneira simples e resumido, sem markdown ou outras formatações.
+"""
 )
 
 # Initialize clients globally
@@ -55,7 +57,7 @@ async def ask_deepseek(model: str, question: str) -> str:
                 ],
             )
         )
-        return resp.choices[0].message.content.strip()
+        return resp.choices[0].message.content.strip() if resp.choices[0].message.content else " "
     except Exception as e:
         logger.error(f"DeepSeek error: {e}")
         return " " 
@@ -69,13 +71,13 @@ async def ask_gemini(model: str, question: str) -> str:
                 system_instruction=MODEL_CONTEXT,
                 ),
         )
-        return resp.text.strip()
+        return resp.text.strip() if resp.text else " "
     except Exception as e:
         logger.error(f"Gemini error: {e}")
         return " " 
 
 # Retry logic in case of network errors or rate limits
-async def retry(fn, *args, retries=3, delay=2, **kwargs):
+async def retry(fn: Callable, *args, retries=3, delay=2, **kwargs):
     for attempt in range(1, retries + 1):
         try:
             return await fn(*args, **kwargs)
@@ -110,7 +112,7 @@ async def process_csv(filename: str):
         df[name] = df[name].fillna("").astype(str)
 
     # Semaphore to limit concurrency
-    sem = asyncio.Semaphore(2)
+    sem = asyncio.Semaphore(1)
 
     # Process each row
     async def process_row(i, question):
@@ -126,9 +128,7 @@ async def process_csv(filename: str):
                 return await retry(fn, model, question)
 
             # List comprehension to gather all model responses
-            results = await asyncio.gather(*[
-                query_model(model, fn) for model, fn in MODELS.items()
-            ])
+            results = await asyncio.gather(*[query_model(model, fn) for model, fn in MODELS.items()])
 
             # Update DataFrame with results
             for model, result in zip(MODELS.keys(), results):
@@ -149,7 +149,7 @@ async def process_csv(filename: str):
 async def main():
     start = time.perf_counter()
     try:
-        await process_csv("src/test.csv")
+        await process_csv("src/perguntas_e_respostas.csv")
     except Exception as e:
         logger.exception(f"Erro no processamento: {e}")
     finally:
