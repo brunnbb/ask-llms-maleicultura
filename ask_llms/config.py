@@ -101,7 +101,7 @@ def build_run_config(
     if mode is Mode.NORMAL:
         return RunConfig(
             mode=mode,
-            csv_path=csv_path or "src/perguntas_e_respostas.csv",
+            csv_path=csv_path or "data/perguntas_e_respostas.csv",
             models=_normal_models(),
             concurrency=concurrency or 1,
         )
@@ -109,7 +109,7 @@ def build_run_config(
     if mode is Mode.FINE_TUNED:
         return RunConfig(
             mode=mode,
-            csv_path=csv_path or "src/normal_fined_tune.csv",
+            csv_path=csv_path or "data/perguntas_e_respostas_ft.csv",
             models=_fine_tuned_models(),
             concurrency=concurrency or 4,
         )
