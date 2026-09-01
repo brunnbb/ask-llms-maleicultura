@@ -82,7 +82,7 @@ O CSV deve conter uma coluna `pergunta` (e opcionalmente `id`). As colunas dos m
 **Modo normal:**
 
 ```
-id,pergunta,gpt-5,gpt-5-mini,gpt-5-nano,gemini-2.5-flash,gemini-2.5-pro,deepseek-chat,deepseek-reasoner
+id,pergunta,gpt-5,gpt-5-mini,gpt-5-nano,gemini-2.5-flash,gemini-2.5-pro,deepseek-chat,deepseek-reasoner,gpt-4.1,gpt-4.1-mini
 1,Há cultivares de macieira resistentes a todas as doenças da macieira?,,,,,,,
 2,Há possibilidade de uso de drones de pulverização na cultura da macieira?,,,,,,,
 ```
@@ -90,7 +90,7 @@ id,pergunta,gpt-5,gpt-5-mini,gpt-5-nano,gemini-2.5-flash,gemini-2.5-pro,deepseek
 **Modo fine-tuned:**
 
 ```
-id,pergunta,gpt-4-ft,gpt-4-mini-ft
+id,pergunta,gpt-4.1-ft,gpt-4.1-mini-ft
 1,Há cultivares de macieira resistentes a todas as doenças da macieira?,,
 2,Há possibilidade de uso de drones de pulverização na cultura da macieira?,,
 ```
@@ -99,7 +99,7 @@ id,pergunta,gpt-4-ft,gpt-4-mini-ft
 
 **Modo normal**
 
-- **OpenAI**: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`
+- **OpenAI**: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`, `gpt-4.1-mini`
 - **Google**: `gemini-2.5-flash`, `gemini-2.5-pro`
 - **DeepSeek**: `deepseek-chat`, `deepseek-reasoner`
 
