@@ -5,13 +5,13 @@ de modelos para cada modo de execução (normal x fine-tuning).
 from __future__ import annotations
 
 import os
-from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from enum import Enum
+from typing import Callable, Coroutine
 
 from dotenv import load_dotenv
 
-_ = load_dotenv()
+load_dotenv()
 
 MODEL_CONTEXT = """
 Você é um consultor agrícola especializado em produção e manejo de maçãs, com foco em ajudar produtores rurais, considerando o contexto produtivo da região sul do Brasil.
@@ -36,7 +36,8 @@ class ModelSpec:
 
 
 # Cada provider expõe uma função async (model_id, question) -> str.
-# A implementação real fica em providers.py;
+# A implementação real fica em providers.py; aqui só referenciamos a chave
+# para manter este módulo livre de dependências pesadas de SDK.
 ProviderFn = Callable[[str, str], Coroutine[None, None, str]]
 
 
@@ -55,6 +56,8 @@ def _normal_models() -> tuple[ModelSpec, ...]:
         ModelSpec("gpt-5", "gpt-5", "openai"),
         ModelSpec("gpt-5-mini", "gpt-5-mini", "openai"),
         ModelSpec("gpt-5-nano", "gpt-5-nano", "openai"),
+        ModelSpec("gpt-4.1", "gpt-4.1", "openai"),
+        ModelSpec("gpt-4.1-mini", "gpt-4.1-mini", "openai"),
         ModelSpec("gemini-2.5-flash", "gemini-2.5-flash", "gemini"),
         ModelSpec("gemini-2.5-pro", "gemini-2.5-pro", "gemini"),
         ModelSpec("deepseek-chat", "deepseek-chat", "deepseek"),
@@ -63,7 +66,8 @@ def _normal_models() -> tuple[ModelSpec, ...]:
 
 
 def _fine_tuned_models() -> tuple[ModelSpec, ...]:
-    # Fine-tuning só para a família OpenAI
+    # Fine-tuning só existe para a família OpenAI (DeepSeek não tem API de
+    # fine-tuning nativa e Gemini não foi incluído no experimento).
     gpt4_1 = os.getenv("FT_MODEL_NAME_GPT_4_1")
     gpt4_1_mini = os.getenv("FT_MODEL_NAME_GPT_4_1_MINI")
 
@@ -81,8 +85,8 @@ def _fine_tuned_models() -> tuple[ModelSpec, ...]:
         )
 
     return (
-        ModelSpec("gpt-4-ft", gpt4_1, "openai"),
-        ModelSpec("gpt-4-mini-ft", gpt4_1_mini, "openai"),
+        ModelSpec("gpt-4.1-ft", gpt4_1, "openai"),
+        ModelSpec("gpt-4.1-mini-ft", gpt4_1_mini, "openai"),
     )
 
 
@@ -92,12 +96,12 @@ def build_run_config(
     concurrency: int | None = None,
 ) -> RunConfig:
     """Monta a configuração de execução a partir do modo escolhido,
-    aplicando os padroes originais de cada script quando não sobrescritos.
+    aplicando os defaults originais de cada script quando não sobrescritos.
     """
     if mode is Mode.NORMAL:
         return RunConfig(
             mode=mode,
-            csv_path=csv_path or "data/perguntas_e_respostas.csv",
+            csv_path=csv_path or "src/perguntas_e_respostas.csv",
             models=_normal_models(),
             concurrency=concurrency or 1,
         )
@@ -105,7 +109,9 @@ def build_run_config(
     if mode is Mode.FINE_TUNED:
         return RunConfig(
             mode=mode,
-            csv_path=csv_path or "data/perguntas_e_respostas_ft.csv",
+            csv_path=csv_path or "src/normal_fined_tune.csv",
             models=_fine_tuned_models(),
             concurrency=concurrency or 4,
         )
+
+    raise ValueError(f"Modo desconhecido: {mode}")
