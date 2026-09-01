@@ -1,11 +1,10 @@
 # ask-llms-maleicultura
 
-Pipeline que envia um conjunto de perguntas sobre **maleicultura** (cultivo de macieiras) para múltiplos LLMs e salva as respostas em um CSV, permitindo comparar o desempenho de diferentes modelos e técnicas (base, RAG, fine-tuning) no domínio.
-
+Pipeline que envia um conjunto de perguntas sobre **maleicultura** (cultivo de macieiras) para múltiplos LLMs e salva as respostas em um CSV, permitindo comparar o desempenho de diferentes modelos.
 Suporta dois modos de execução:
 
 - **normal** — consulta todos os modelos base (OpenAI, Google Gemini, DeepSeek).
-- **fine-tuned** — consulta apenas os modelos OpenAI fine-tuned (DeepSeek não possui API nativa de fine-tuning e Gemini não foi incluído nessa etapa do experimento).
+- **fine-tuned** — consulta apenas os modelos OpenAI fine-tuned.
 
 ## Estrutura do projeto
 
